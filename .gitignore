@@ -1,0 +1,16 @@
+.vscode/
+
+__pycache__/
+
+# Директории в проекте
+data/
+logs/
+config/
+modelcachedir/
+TEMP/
+
+# Схема для БД
+!config/table_schema.sql
+
+# Локальные тесты
+test_script.py
