@@ -53,7 +53,7 @@ app = FastAPI()
 def get_logger():
     return CustomLogger(
         "./logs", 
-        "test_run_file_log.log", 
+        "test_run_file_log_v2.log", 
         logging_lavel=logging.DEBUG,
         outputConsole=True
     )

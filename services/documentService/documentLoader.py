@@ -3,7 +3,7 @@
 # =======================
 from typing import List, Dict
 import os
-from langchain.document_loaders import PyMuPDFLoader, Docx2txtLoader, TextLoader
+from langchain_community.document_loaders import PyMuPDFLoader, Docx2txtLoader, TextLoader
 
 
 class DocumentLoader:

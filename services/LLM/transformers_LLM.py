@@ -49,11 +49,31 @@ class LLM_transformers(BaseLLM):
             self.logger.debug("llm init end")
 
 
-    def generate(self, prompt : str, max_length : int = 1024, max_new_tokens : int = 256) -> str:
+    def generate(
+        self, 
+        prompt : str, 
+        max_length : int = 1024, 
+        max_new_tokens : int = 256,
+        repetition_penalty : int = 1.0,
+        no_repeat_ngram_size : int = 2,
+        do_sample : bool = False,
+        top_k : int = 50,
+        temperature : int = 0.5
+        ) -> str:
         """
         method for generate response LLM
-
-        return - full text, without filter
+        
+        Args
+            prompt : str, 
+            max_length : int = 1024, 
+            max_new_tokens : int = 256,
+            repetition_penalty : int = 1.0,
+            no_repeat_ngram_size : int = 2,
+            do_sample : bool = False,
+            top_k : int = 50,
+            temperature : int = 0.5
+        
+        return - full generate text without filters
         """
         # === TOKENIZE ===
         input_text_tokenize = self.tokenizer(
@@ -68,7 +88,12 @@ class LLM_transformers(BaseLLM):
         # === GENERATE ===
         output = self.model.generate(
             **input_text_tokenize,
-            max_new_tokens=max_new_tokens 
+            max_new_tokens=max_new_tokens,
+            repetition_penalty=repetition_penalty,     #Штраф за повторения
+            no_repeat_ngram_size=no_repeat_ngram_size,     #Запрет на повторение ngram=2 (bigrams)
+            do_sample=do_sample,             #Семплирование
+            top_k=top_k,                   #Выбор из 50 более вероятных слов
+            temperature=temperature,            #Температура
         )
 
         self.logger.debug(f"OUTPUT: shape: {output.shape}")
