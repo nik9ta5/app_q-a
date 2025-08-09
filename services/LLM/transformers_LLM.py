@@ -61,19 +61,20 @@ class LLM_transformers(BaseLLM):
         temperature : int = 0.5
         ) -> str:
         """
-        method for generate response LLM
+        method for generate response LLM.
         
-        Args
-            prompt : str, 
-            max_length : int = 1024, 
-            max_new_tokens : int = 256,
-            repetition_penalty : int = 1.0,
-            no_repeat_ngram_size : int = 2,
-            do_sample : bool = False,
-            top_k : int = 50,
-            temperature : int = 0.5
+        Args:
+            prompt (str): prompt for LLM 
+            max_length (int): max seq len 
+            max_new_tokens (int): new tokens
+            repetition_penalty (int): penalty for repeat generate
+            no_repeat_ngram_size (int): no generate repeat ngrams
+            do_sample (bool): on sample
+            top_k (int): Take k more probabylity
+            temperature (int): temp
         
-        return - full generate text without filters
+        Returns:
+            model_response (str): full generate text without filters
         """
         # === TOKENIZE ===
         input_text_tokenize = self.tokenizer(
