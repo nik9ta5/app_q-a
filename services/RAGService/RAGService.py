@@ -62,8 +62,21 @@ class RAGService:
 
 
         # === LLM ANSWER GEENRATE ===
-        model_response = self.llm.generate(prompt_for_model, max_length=max_length, max_new_tokens=max_new_tokens)
+        model_response = self.llm.generate(
+            prompt_for_model, 
+            max_length=max_length, 
+            max_new_tokens=max_new_tokens,
+            repetition_penalty=1.5,
+            no_repeat_ngram_size=3,
+            do_sample=True, #False - use greedy search tokens 
+            top_k=50,
+            top_p=0.9, #find set tokens sum probability >= top_p
+            temperature=0.4
+        )
 
+        split_answer_model = model_response.split("### Answer\n")[-1]
+        if self.logger:
+            self.logger.debug(f"======== [SPLIR ANSWER MODEL] ========{split_answer_model}======== [SPLIR ANSWER MODEL] ========")
         # === CHECK LLM ANSWER, SPLIT ANSWER ===
         # maybe later
         # model_response
@@ -74,6 +87,6 @@ class RAGService:
         
         # === UPDATE CHAT HISTORY ===
         self.chatService.update_chat_history(session_id, {"role" : "user", "content" : query})
-        self.chatService.update_chat_history(session_id, {"role" : "assistent", "content" : model_response})
-
-        return model_response, relevant_docs
+        self.chatService.update_chat_history(session_id, {"role" : "assistent", "content" : split_answer_model})
+        #return split answer (without prompt)
+        return split_answer_model, relevant_docs

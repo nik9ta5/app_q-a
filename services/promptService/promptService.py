@@ -40,8 +40,7 @@ class PromptService:
 ### User Question
 {query}
 
-### Answer
-"""
+### Answer\n"""
         prompt = prompt_template.format(
             instruction=self.instruction,
             chat_history_str=chat_history_str,

@@ -1,3 +1,5 @@
+import sys
+import io
 import logging
 from datetime import datetime
 
@@ -13,13 +15,19 @@ class CustomLogger:
         self.log_file_name = log_file_name
         
         full_path2file_log = f"{path2log_dir}/{log_file_name}"
+
+        handlers = [logging.FileHandler(full_path2file_log, encoding='utf-8')]
+        
+        if outputConsole:
+            # Оборачиваем stdout/stderr в UTF-8, чтобы избежать UnicodeEncodeError
+            sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+            sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+            handlers.append(logging.StreamHandler())  # Добавляем только если нужно
+
         logging.basicConfig(
             level=logging_lavel,  # Уровень логирования
             format='%(asctime)s - %(levelname)s\n%(message)s',  # Формат сообщений
-            handlers=[
-                logging.FileHandler(full_path2file_log),  # Запись в файл
-                logging.StreamHandler() if outputConsole else None # Вывод в консоль (опционально)
-            ],
+            handlers=handlers,
             encoding='utf-8'
         )
 
@@ -27,3 +35,6 @@ class CustomLogger:
 
     def getLogger(self):
         return self._my_logger
+    
+    def log(self, message):
+        self._my_logger.info(message)

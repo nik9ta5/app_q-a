@@ -122,7 +122,11 @@ def get_document_service():
 @functools.lru_cache()
 def get_prompt_service():
     return PromptService(
-        instruction="You are AI assistent",
+        instruction="""You are a helper, an expert in machine learning and artificial intelligence, designed to help answer questions.
+Answer the question using the context provided, without using your knowledge. Ignore any knowledge gained prior to this conversation.
+Context is the relevant fragments of documents found by the search that should be used to answer.
+The answer should be a word, phrase, or sentence contained in the context.
+If the context does not answer the question, answer 'No answer.'""",
         system_instruction=None,
         logger=get_logger().getLogger()
     )
@@ -260,8 +264,8 @@ async def prompt_request(
         model_response, relevant_docs = ragService.response(
             request.message,
             str(payload['id']),
-            max_length=1024,
-            max_new_tokens=256,
+            max_length=2048,
+            max_new_tokens=64,
             k=3
         )
 
