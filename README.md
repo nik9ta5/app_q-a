@@ -69,10 +69,10 @@ GUI не реализован, взаимодействие с приложен�
 **Request Body**: Принимает JSON с данными о пользователе
 **Пример**
 ```json
-    {
-        "username" : "nikita",
-        "password" : "pass"
-    }
+{
+    "username" : "nikita",
+    "password" : "pass"
+}
 ```
 
 ### 2. Аутентификация пользователей 
@@ -80,10 +80,10 @@ GUI не реализован, взаимодействие с приложен�
 **Request Body**: Принимает JSON с данными о пользователе
 **Пример**
 ```json
-    {
-        "username" : "nikita",
-        "password" : "pass"
-    }
+{
+    "username" : "nikita",
+    "password" : "pass"
+}
 ```
 
 ### 3. Отправка запроса с вопросом по документам
@@ -91,10 +91,10 @@ GUI не реализован, взаимодействие с приложен�
 **Request Body**: Принимает JSON с токеном и вопросом
 **Пример**
 ```json
-    {
-        "jwt" : "token.token.token",
-        "message" : "This is text message for system"
-    }
+{
+    "jwt" : "token.token.token",
+    "message" : "This is text message for system"
+}
 ```
 
 ### 4. Загрузка документов
@@ -121,16 +121,21 @@ docs.append((
     )
 ))
 
-data_payload = {
-    "jwt" : "token.token.token"
-}
+async def file_load(url, docs):
+  data_payload = {
+      "JWToken" : "token.token.token"
+  }
+  timeout = httpx.Timeout(60.0, connect=5.0) 
+  async with httpx.AsyncClient(timeout=timeout) as client:
+    response = await client.post(
+        url,
+        data=data_payload,
+        files=docs
+    )
+    print(response.status_code)
+    print(response.json())
 
-response = await client.post(
-    'http://127.0.0.1:8005/load',
-    data=data_payload,
-    files=docs
-)
 
-print(response.status_code)
-print(response.json())
+if __name__ == "__main__":
+  asyncio.run(file_load("http://localhost:8005/load", docs))
 ```

@@ -12,7 +12,8 @@ class UserService:
     def __init__(
         self, db : DataBase, 
         hashService : HashPassService,
-        logger : logging = None
+        logger : logging = None,
+        base_dir : str = "./TEMP"
         ):
 
         if logger:
@@ -21,6 +22,7 @@ class UserService:
         self.logger = logger
         self.db = db
         self.hashService = hashService
+        self.base_dir = base_dir
 
         if logger:
             logger.debug(f"user service init end")
@@ -33,10 +35,9 @@ class UserService:
 
         try:
             #Создать директорию для файлов пользователей
-            base_dir = "/TEMP"
-            os.makedirs(base_dir, exist_ok=True)
+            os.makedirs(self.base_dir, exist_ok=True)
             path2dir_for_files = str(uuid.uuid4())
-            os.makedirs(f"{base_dir}/{path2dir_for_files}")
+            os.makedirs(f"{self.base_dir}/{path2dir_for_files}")
 
             #Добавить пользователя
             self.db.insert_new_user(

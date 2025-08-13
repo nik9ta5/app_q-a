@@ -67,7 +67,7 @@ class AuthService:
             jwtoken = self.jwtService.create_jwt(
                 for_payload, 
                 self.secret_key, 
-                expires_in_minutes=30
+                expires_in_minutes=30 #config
             )
             return jwtoken 
         

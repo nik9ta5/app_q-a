@@ -37,7 +37,13 @@ class RAGService:
         session_id : str,
         max_length : int = 1024,
         max_new_tokens : int = 256,
-        k : int = 3
+        k : int = 3,
+        repetition_penalty : float = 1.0,
+        no_repeat_ngram_size : int = 3,
+        do_sample : bool = False,
+        top_k : int = 50,
+        top_p : float = 0.9,
+        temperature : float = 0.5
         ) -> Tuple[str, List[Document]]:
         """method for RAG response"""
         # === GET CHAT HISTORY ===
@@ -66,15 +72,15 @@ class RAGService:
             prompt_for_model, 
             max_length=max_length, 
             max_new_tokens=max_new_tokens,
-            repetition_penalty=1.5,
-            no_repeat_ngram_size=3,
-            do_sample=True, #False - use greedy search tokens 
-            top_k=50,
-            top_p=0.9, #find set tokens sum probability >= top_p
-            temperature=0.4
+            repetition_penalty=repetition_penalty,
+            no_repeat_ngram_size=no_repeat_ngram_size,
+            do_sample=do_sample, #False - use greedy search tokens 
+            top_k=top_k,
+            top_p=top_p, #find set tokens sum probability >= top_p
+            temperature=temperature
         )
 
-        split_answer_model = model_response.split("### Answer\n")[-1]
+        split_answer_model = model_response.split("### Answer:\n")[-1]
         if self.logger:
             self.logger.debug(f"======== [SPLIR ANSWER MODEL] ========{split_answer_model}======== [SPLIR ANSWER MODEL] ========")
         # === CHECK LLM ANSWER, SPLIT ANSWER ===

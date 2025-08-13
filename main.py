@@ -5,6 +5,7 @@ import os
 import uuid
 import shutil
 import logging
+import yaml
 
 # Для того, чтобы сервисы инициализировались 1 раз
 import functools
@@ -39,9 +40,14 @@ from services.chatService.chatService import ChatService
 from services.LLM.transformers_LLM import LLM_transformers
 from services.RAGService.RAGService import RAGService
 
+# ======== CONFIG LOAD ========
+with open(f'./config/AppConfig.yaml', 'r') as file:
+    CONFIG = yaml.safe_load(file)
+print(f"===== CONFIG =====\n{CONFIG}\n===============")
+
 # ======== VARIABLES ========
-SECRET_KEY = "HELLO12345"
-FILE_LIMIT = 5
+SECRET_KEY = CONFIG['secret_key']
+FILE_LIMIT = CONFIG['file_limit']
 
 #FAST API Application
 app = FastAPI()
@@ -52,8 +58,8 @@ app = FastAPI()
 @functools.lru_cache()
 def get_logger():
     return CustomLogger(
-        "./logs", 
-        "test_run_file_log_v2.log", 
+        CONFIG['dir_for_logs'], 
+        CONFIG['log_filename'], 
         logging_lavel=logging.DEBUG,
         outputConsole=True
     )
@@ -61,10 +67,10 @@ def get_logger():
 @functools.lru_cache()
 def get_db():
     return DataBase(
-        "./data", 
-        "test.db", 
-        "./config/table_schema.sql", 
-        new_init=True, 
+        CONFIG["dir_for_db"], 
+        CONFIG["db_filename"], 
+        CONFIG["path2scheme_db"], 
+        new_init=CONFIG['new_init_db'], 
         logger=get_logger().getLogger()
     )
 
@@ -82,19 +88,19 @@ def get_auth_service():
 
 @functools.lru_cache()
 def get_user_service():
-    return UserService(get_db(), get_hash_service(), logger=get_logger().getLogger())
+    return UserService(get_db(), get_hash_service(), logger=get_logger().getLogger(), base_dir=CONFIG["dir_for_temp_dirs"])
 
 @functools.lru_cache()
 def get_sentense_transformer_embedding():
     return SentenceTransformerEmbedding(
-        cache_folder="./modelcachedir"
+        cache_folder=CONFIG["dir_for_cache_models"]
     )
 
 @functools.lru_cache()
 def get_vdb():
     return VectorDBService(
-        "./data",
-        "collection_test_one",
+        CONFIG["dir_for_db"],
+        CONFIG["vdb_filename"],
         get_sentense_transformer_embedding(),
         logger=get_logger().getLogger()
     )
@@ -106,8 +112,8 @@ def get_document_loader():
 @functools.lru_cache()
 def get_text_spliter():
     return TextSplitterService(
-        chunk_size=2000, 
-        chunk_overlap=300
+        chunk_size=CONFIG["split_document_chunk_size"], 
+        chunk_overlap=CONFIG["split_document_chunk_overlap"]
     )
 
 @functools.lru_cache()
@@ -138,10 +144,10 @@ def get_chat_service():
 @functools.lru_cache()
 def get_llm_transformer():
     return LLM_transformers(
-        "Qwen/Qwen3-0.6B",
-        "./modelcachedir",
+        CONFIG["model"],
+        CONFIG["dir_for_cache_models"],
         "cuda" if torch.cuda.is_available() else "cpu",
-        full_model_path="./modelcachedir/models--Qwen--Qwen3-0.6B/snapshots/c1899de289a04d12100db370d81485cdf75e47ca",
+        full_model_path=CONFIG["model_full_local_path"],
         local_load=True,
         logger=get_logger().getLogger()
     )
@@ -264,9 +270,15 @@ async def prompt_request(
         model_response, relevant_docs = ragService.response(
             request.message,
             str(payload['id']),
-            max_length=2048,
-            max_new_tokens=64,
-            k=3
+            max_length=int(CONFIG['max_length']),
+            max_new_tokens=int(CONFIG['max_new_tokens']),
+            k=CONFIG['vdb_find_k'],
+            repetition_penalty=CONFIG["repetition_penalty"],
+            no_repeat_ngram_size=CONFIG["no_repeat_ngram_size"],
+            do_sample=CONFIG["do_sample"],
+            top_k=CONFIG["top_k"],
+            top_p=CONFIG["top_p"],
+            temperature=CONFIG["temperature"]
         )
 
         return ServerResponse(message=model_response)
